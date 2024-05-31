@@ -145,7 +145,11 @@ void loop() {
   angleCalculations();
   moveServoMotorWithCoordinates();
   // Serial.print(buttonValueSmoothed);
-  Serial.print(rotationAngle);
-  Serial.print(" , ");
-  Serial.println(servo_1.read());
+
+  // Serial.print(rotationAngle);
+  // Serial.print(" , ");
+  // Serial.println(servo_1.read());
+
+  int potenciometerValue = map(analogRead(13), 4095, 1930, 0, 180);
+  Serial.println(potenciometerValue);
 }
