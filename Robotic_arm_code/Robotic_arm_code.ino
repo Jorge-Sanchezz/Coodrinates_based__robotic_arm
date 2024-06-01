@@ -174,13 +174,14 @@ void angleCalculations(){
 //Beginning of calculations to get the angles required for the servo 2,3,4
   hST1 = sqrt(sq(x) + sq(y));
   hST2 = sqrt(sq(hST1) + sq(z));
-  K = asin(abs(z/hST1));
+  K = sin(abs(z/hST1));
   ak = sqrt(sq(gripperLength) +  sq(hST2) - 2*(gripperLength)*(hST2) * cos(K));
-  BT1 = asin((hST2*sin(K)) / ak);
-  AT1 = PI - (BT1 + K);
-  AT2 = acos((sq(ak) + sq(12) + sq(12)) / (2 * 12 * 12));
-  BT2 = asin((sin(AT2) * 12) / ak);
-  CT2 = 180 - (AT2 + BT2);
+  
+  // BT1 = asin((hST2*sin(K)) / ak);
+  // AT1 = PI - (BT1 + K);
+  // AT2 = cos((sq(-ak) + sq(120) + sq(120)) / (2 * 120 * 120));
+  // BT2 = sin((sin(AT2) * 120) / ak);
+  // CT2 = PI - (AT2 + BT2);
 
   shoulderAngle = (K + AT1 + CT2) * (180 / PI);
   elbowAngle = (AT2) * (180 / PI) - 90;
@@ -225,8 +226,8 @@ void angleCalculations(){
     Serial.print("BT2: ");
     Serial.println(BT2);
 
-    Serial.print("CT2: ");
-    Serial.println(CT2);
+    Serial.print("gripperLength: ");
+    Serial.println(gripperLength);
   }
 }
 
