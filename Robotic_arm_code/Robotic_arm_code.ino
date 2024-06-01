@@ -26,12 +26,33 @@ byte ledStepFlag = 0;
 float rotationAngleSmoothed;
 float rotationAnglePrevious;
 
+
+
 float x;
 float y;
+float z;
 byte currentCuadrant; //(I, II, III, IV)
 
 //Begining of angle calculations according to x, y, z coordinates
 float rotationAngle = 90;
+float shoulderAngle = 90;
+float elbowAngle = 90;
+float wristPitchAngle = 90;
+
+
+float gripperAngle = 172;
+int gripperLength = 85;
+
+
+float hST1; //Hypotenuse of Subtriangle 1
+float hST2; //Hypotenuse of Subtriangle 2
+float K; //Angle located in  Sub Triangle 2 and Triangle 1 (angle mirrored)
+float ak; //Line which is divisor in between Triangle 1 and Triangle 2
+float BT1;
+float AT1;
+float AT2;
+float BT2;
+float CT2;
 //End of angle calculations according to x, y, z coordinates
 
 void setup() {
@@ -53,8 +74,7 @@ void setup() {
   delay(10);
   servo_4.write(90 + twistRistOffset);
   servo_5.write(90 + pitchWristOffset);
-  servo_6.write(110);
-
+  servo_6.write(gripperAngle); //70-172
 }
 
 void ledBlink(){
@@ -103,17 +123,24 @@ void moveServoMotorWithCoordinates(){
   rotationAnglePrevious = rotationAngleSmoothed;
 //End of smoothing the angle
   servo_1.write(rotationAngleSmoothed);
-}
+  servo_2.write(shoulderAngle + shoulderOffset);
+  servo_3.write(elbowAngle + elbowOffset);
 
+  servo_5.write(wristPitchAngle + pitchWristOffset);
+  servo_6.write(gripperAngle);
+}
 void angleCalculations(){
   if (Serial.available() > 0) {
     String input = Serial.readStringUntil('\n');
     x = input.substring(1,5).toInt();
     y = input.substring(6,10).toInt();
+    z = input.substring(11,15).toInt();
     Serial.print(x);
     Serial.print(" , ");
-    Serial.println(y);
-//Begining of localization of CUADRANT on the plane (I, II, III, IV)
+    Serial.print(y);
+    Serial.print(" , ");
+    Serial.println(z);
+//Beginning of localization of CUADRANT on the plane (I, II, III, IV)
     rotationAngle = 180 * (atan(abs(y/x))) / PI;
     if(x>=0){
       if(y>0){    //If angle is located on the ++ CUADRANT of the plane CUADRANT I
@@ -134,8 +161,72 @@ void angleCalculations(){
       }
     }
 //End of localization of CUADRANT on the plane (I, II, III, IV)
+
+
+//Beginning of calculations to get the current length of the gripper (as it oscillates depending on it's state)
+  gripperLength = -0.357 * gripperAngle + 150;
+  //Gripper limits
+  if(gripperAngle >= 172){gripperAngle = 172;}
+  if(gripperAngle <= 70){gripperAngle = 70;}
+//End of calculations to get the current length of the gripper (as it oscillates depending on it's state)
+
+
+//Beginning of calculations to get the angles required for the servo 2,3,4
+  hST1 = sqrt(sq(x) + sq(y));
+  hST2 = sqrt(sq(hST1) + sq(z));
+  K = asin(abs(z/hST1));
+  ak = sqrt(sq(gripperLength) +  sq(hST2) - 2*(gripperLength)*(hST2) * cos(K));
+  BT1 = asin((hST2*sin(K)) / ak);
+  AT1 = PI - (BT1 + K);
+  AT2 = acos((sq(ak) + sq(12) + sq(12)) / (2 * 12 * 12));
+  BT2 = asin((sin(AT2) * 12) / ak);
+  CT2 = 180 - (AT2 + BT2);
+
+  shoulderAngle = (K + AT1 + CT2) * (180 / PI);
+  elbowAngle = (AT2) * (180 / PI) - 90;
+  wristPitchAngle = (BT2 + BT1) * (180 / PI) - 90;
+//End of calculations to get the angles required for the servo 2,3,4
+
+    Serial.print("Rotation angle : ");
     Serial.println(rotationAngle);
+
+    Serial.print("Shoulder angle : ");
+    Serial.println(shoulderAngle);
+
+    Serial.print("Elbow angle : ");
+    Serial.println(elbowAngle);
+
+    Serial.print("Wrist Pitch angle : ");
+    Serial.println(wristPitchAngle);
+
     Serial.println("Cuadrant:" + String(currentCuadrant));
+
+    Serial.print("hST1: ");
+    Serial.println(hST1);
+
+    Serial.print("hST2: ");
+    Serial.println(hST2);
+
+    Serial.print("K: ");
+    Serial.println(K);
+
+    Serial.print("ak: ");
+    Serial.println(ak);
+
+    Serial.print("BT1: ");
+    Serial.println(BT1);
+
+    Serial.print("AT1: ");
+    Serial.println(AT1);
+
+    Serial.print("AT2: ");
+    Serial.println(AT2);
+
+    Serial.print("BT2: ");
+    Serial.println(BT2);
+
+    Serial.print("CT2: ");
+    Serial.println(CT2);
   }
 }
 
@@ -151,5 +242,5 @@ void loop() {
   // Serial.println(servo_1.read());
 
   int potenciometerValue = map(analogRead(13), 4095, 1930, 0, 180);
-  Serial.println(potenciometerValue);
+  //Serial.println(potenciometerValue);
 }
