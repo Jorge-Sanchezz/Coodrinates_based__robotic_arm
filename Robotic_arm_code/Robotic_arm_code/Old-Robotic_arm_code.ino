@@ -26,8 +26,6 @@ byte ledStepFlag = 0;
 float rotationAngleSmoothed;
 float rotationAnglePrevious;
 
-
-
 float x;
 float y;
 float z;
@@ -40,7 +38,7 @@ float elbowAngle = 90;
 float wristPitchAngle = 90;
 
 
-float gripperAngle = 172;
+float gripperAngle = 152;
 int gripperLength = 85;
 
 
@@ -68,10 +66,11 @@ void setup() {
   servo_6.attach(21);
 
 //Servo's initial position
-  servo_1.write(90);
   servo_2.write(90 + shoulderOffset);
+  delay(300);
+  servo_1.write(90);
   servo_3.write(90 + elbowOffset);
-  delay(10);
+  delay(200);
   servo_4.write(90 + twistRistOffset);
   servo_5.write(90 + pitchWristOffset);
   servo_6.write(gripperAngle); //70-172
@@ -184,8 +183,8 @@ void angleCalculations(){
   CT2 = PI - (AT2 + BT2);
 
   shoulderAngle = 180 - (((K + AT1 + CT2) * (180 / PI)) / 2);
-  elbowAngle = (AT2) * (180 / PI) - 90;
-  wristPitchAngle = (BT2 + BT1) * (180 / PI) - 90;
+  elbowAngle = 180 - ((AT2) * (180 / PI)) - 90;
+  wristPitchAngle = (BT2 + BT1) * (180 / PI) +90;
 //End of calculations to get the angles required for the servo 2,3,4
 
     Serial.print("Rotation angle : ");
@@ -230,7 +229,7 @@ void angleCalculations(){
     Serial.println(CT2);
 
     Serial.print("gripperLength: ");
-    Serial.println(-sq(ak));
+    Serial.println(gripperAngle);
   }
 }
 
