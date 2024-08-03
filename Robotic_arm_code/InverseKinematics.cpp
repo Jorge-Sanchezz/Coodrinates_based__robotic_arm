@@ -15,7 +15,7 @@ float shoulderAngle = 90;
 float elbowAngle = 90;
 float wristPitchAngle = 90;
 
-int gripperAngle = 150;
+int gripperAngle = 170;
 float gripperLength = 8.5;
 
 double hST1; //Hypotenuse of Subtriangle 1
@@ -41,10 +41,11 @@ void InverseKinematics::calculate_IK(float x, float y, float z) {
   _z = z;
 
 //Beginning of calculations to get the current length of the gripper (as it oscillates depending on it's state)
-  gripperLength = (-0.357 * gripperAngle + 150)/10;
+  gripperLength = (-(gripperAngle / 27) + (360 / 27))+1.5;
+  //(-0.357 * gripperAngle + 150)/10;
   //Gripper limits
-  //if(gripperAngle >= 180){gripperAngle = 180;}
-  if(gripperAngle <= 70){gripperAngle = 70;}
+  if(gripperAngle >= 170){gripperAngle = 170;}
+  if(gripperAngle <= 65){gripperAngle = 65;}
 //End of calculations to get the current length of the gripper (as it oscillates depending on it's state)
 
 
@@ -56,11 +57,9 @@ void InverseKinematics::calculate_IK(float x, float y, float z) {
   BT1 = acos((sq(gripperLength) + sq(ak) - sq(hST2)) / (2 * gripperLength * ak));
   AT1 = PI - (BT1 + K);
   AT2 = acos((sq(12) + sq(12) - sq(ak)) / (2 * 12 *  12));
-  
-  //CHECK ak
+  BT2 = acos((sq(23.03) + sq(12) - sq(12)) / (2 * 23.03 * 12));
 
   //Check from now and on
-  BT2 = acos((sq(23.03) + sq(12) - sq(12)) / (2 * 23.03 * 12));
   CT2 = PI - (AT2 + BT2);
 
   shoulderAngle = 180 - (((K + AT1 + CT2) * (180 / PI)) / 2);
@@ -69,7 +68,7 @@ void InverseKinematics::calculate_IK(float x, float y, float z) {
 //End of calculations to get the angles required for the servo 2,3,4
 
 
-  Serial.println(ak);
+  Serial.println(CT2);
 }
 
 double InverseKinematics::servo_1_angle(){
