@@ -27,12 +27,13 @@ void setup() {
 }
 
 void loop() {
-  //angleCalculations();
-  //moveServoMotorWithCoordinates();
-  //ledBlink();
   led.stand_by_mode();
 
-  InverseKinematics.calculate_IK(9.97, 17.34, 20.00);
+  int potenciometerValue = map(analogRead(13), 4095, 1900, 0, 30);
+  //Serial.println(potenciometerValue);
+
+  InverseKinematics.calculate_IK(13.08, 18.20, potenciometerValue);
+
   //Serial.println(InverseKinematics.servo_2_angle());
 
   servo_1.write(InverseKinematics.servo_1_angle());

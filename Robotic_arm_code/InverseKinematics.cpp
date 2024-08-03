@@ -4,7 +4,7 @@
 */
 #include "InverseKinematics.h"
 
-const int shoulderOffset = 16;//-4;
+const int shoulderOffset = 0;//-4;
 const int elbowOffset = 0;//-8;
 const byte twistRistOffset = 8;
 const byte pitchWristOffset = 21;//25;
@@ -57,10 +57,10 @@ void InverseKinematics::calculate_IK(float x, float y, float z) {
   BT1 = acos((sq(gripperLength) + sq(ak) - sq(hST2)) / (2 * gripperLength * ak));
   AT1 = PI - (BT1 + K);
   AT2 = acos((sq(12) + sq(12) - sq(ak)) / (2 * 12 *  12));
-  BT2 = acos((sq(23.03) + sq(12) - sq(12)) / (2 * 23.03 * 12));
+  BT2 = acos((sq(ak) + sq(12) - sq(12)) / (2 * ak * 12));
 
   //Check from now and on
-  CT2 = PI - (AT2 + BT2);
+  CT2 = BT2;
 
   shoulderAngle = (((K + AT1 + CT2) * (180 / PI)));
   elbowAngle = 180 - (((AT2) * (180 / PI)) - 90);
@@ -68,7 +68,7 @@ void InverseKinematics::calculate_IK(float x, float y, float z) {
 //End of calculations to get the angles required for the servo 2,3,4
 
 
-  Serial.println(wristPitchAngle);
+  Serial.println(AT2);
 }
 
 double InverseKinematics::servo_1_angle(){
