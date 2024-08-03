@@ -38,7 +38,6 @@ void loop() {
   servo_1.write(InverseKinematics.servo_1_angle());
   servo_2.write(InverseKinematics.servo_2_angle());
   servo_3.write(InverseKinematics.servo_3_angle());
-  
   servo_4.write(InverseKinematics.servo_4_angle());
   servo_5.write(InverseKinematics.servo_5_angle());
   servo_6.write(InverseKinematics.servo_6_angle());

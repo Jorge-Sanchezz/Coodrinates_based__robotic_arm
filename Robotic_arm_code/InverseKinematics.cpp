@@ -4,10 +4,10 @@
 */
 #include "InverseKinematics.h"
 
-const int shoulderOffset = -4;
-const int elbowOffset = -8;
-const byte twistRistOffset = 16;
-const byte pitchWristOffset = 12;
+const int shoulderOffset = 16;//-4;
+const int elbowOffset = 0;//-8;
+const byte twistRistOffset = 8;
+const byte pitchWristOffset = 21;//25;
 
 //Begining of angle calculations according to x, y, z coordinates
 float rotationAngle = 90;
@@ -62,13 +62,13 @@ void InverseKinematics::calculate_IK(float x, float y, float z) {
   //Check from now and on
   CT2 = PI - (AT2 + BT2);
 
-  shoulderAngle = 180 - (((K + AT1 + CT2) * (180 / PI)) / 2);
-  elbowAngle = 180 - ((AT2) * (180 / PI)) - 90;
-  wristPitchAngle = (BT2 + BT1) * (180 / PI) +90;
+  shoulderAngle = (((K + AT1 + CT2) * (180 / PI)));
+  elbowAngle = 180 - (((AT2) * (180 / PI)) - 90);
+  wristPitchAngle = (BT2 + BT1) * (180 / PI) - 90;
 //End of calculations to get the angles required for the servo 2,3,4
 
 
-  Serial.println(CT2);
+  Serial.println(wristPitchAngle);
 }
 
 double InverseKinematics::servo_1_angle(){
