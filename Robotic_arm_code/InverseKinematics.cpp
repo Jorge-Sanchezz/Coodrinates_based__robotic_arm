@@ -58,8 +58,6 @@ void InverseKinematics::calculate_IK(float x, float y, float z) {
   AT1 = PI - (BT1 + K);
   AT2 = acos((sq(12) + sq(12) - sq(ak)) / (2 * 12 *  12));
   BT2 = acos((sq(ak) + sq(12) - sq(12)) / (2 * ak * 12));
-
-  //Check from now and on
   CT2 = BT2;
 
   shoulderAngle = (((K + AT1 + CT2) * (180 / PI)));
