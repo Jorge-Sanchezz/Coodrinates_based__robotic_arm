@@ -50,23 +50,47 @@ void InverseKinematics::calculate_IK(float x, float y, float z) {
 
 
 //Beginning of calculations to get the angles required for the servo 2,3,4
-  hST1 = sqrt(sq(x) + sq(y));
-  hST2 = sqrt(sq(hST1) + sq(z));
-  K = asin(abs(z/hST2));
-  ak = sqrt(sq(gripperLength) +  sq(hST2) - 2*(gripperLength)*(hST2) * cos(K));
-  BT1 = acos((sq(gripperLength) + sq(ak) - sq(hST2)) / (2 * gripperLength * ak));
-  AT1 = PI - (BT1 + K);
-  AT2 = acos((sq(12) + sq(12) - sq(ak)) / (2 * 12 *  12));
-  BT2 = acos((sq(ak) + sq(12) - sq(12)) / (2 * ak * 12));
-  CT2 = BT2;
+  if(_x<0 || _y<0 || _z<0){
+    _x = abs(_x);
+    _y = abs(_y);
+    _z = abs(_z);
 
-  shoulderAngle = (((K + AT1 + CT2) * (180 / PI)));
-  elbowAngle = 180 - (((AT2) * (180 / PI)) - 90);
-  wristPitchAngle = (BT2 + BT1) * (180 / PI) - 90;
+    hST1 = sqrt(sq(_x) + sq(_y));
+    hST2 = sqrt(sq(hST1) + sq(_z));
+    K = asin(_z/hST2);
+    ak = sqrt(sq(gripperLength) +  sq(hST2) - 2*(gripperLength)*(hST2) * cos(K));
+    BT1 = acos((sq(gripperLength) + sq(ak) - sq(hST2)) / (2 * gripperLength * ak));
+    AT1 = PI - (BT1 + K);
+    AT2 = acos((sq(12) + sq(12) - sq(ak)) / (2 * 12 *  12));
+    BT2 = acos((sq(ak) + sq(12) - sq(12)) / (2 * ak * 12));
+    CT2 = BT2;
+
+    shoulderAngle = 180 - ((K + AT1 + CT2) * (180 / PI));
+    elbowAngle = (((AT2) * (180 / PI)) - 90);
+    wristPitchAngle = 180 - ((BT2 + BT1) * (180 / PI) - 90);
+  }
+
+  else if(_x>0 || _y>0 || _z>0){
+    hST1 = sqrt(sq(_x) + sq(_y));
+    hST2 = sqrt(sq(hST1) + sq(_z));
+    K = asin(_z/hST2);
+    ak = sqrt(sq(gripperLength) +  sq(hST2) - 2*(gripperLength)*(hST2) * cos(K));
+    BT1 = acos((sq(gripperLength) + sq(ak) - sq(hST2)) / (2 * gripperLength * ak));
+    AT1 = PI - (BT1 + K);
+    AT2 = acos((sq(12) + sq(12) - sq(ak)) / (2 * 12 *  12));
+    BT2 = acos((sq(ak) + sq(12) - sq(12)) / (2 * ak * 12));
+    CT2 = BT2;
+
+    shoulderAngle = (((K + AT1 + CT2) * (180 / PI)));
+    elbowAngle = 180 - (((AT2) * (180 / PI)) - 90);
+    wristPitchAngle = (BT2 + BT1) * (180 / PI) - 90;
+  }
+
+
 //End of calculations to get the angles required for the servo 2,3,4
 
 
-  Serial.println(AT2);
+  Serial.println(_y);
 }
 
 double InverseKinematics::servo_1_angle(){
