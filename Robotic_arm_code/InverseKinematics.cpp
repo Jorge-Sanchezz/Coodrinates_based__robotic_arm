@@ -45,15 +45,15 @@ void InverseKinematics::calculate_IK(float x, float y, float z) {
   //(-0.357 * gripperAngle + 150)/10;
   //Gripper limits
   if(gripperAngle >= 170){gripperAngle = 170;}
-  if(gripperAngle <= 65){gripperAngle = 65;}
+  else if(gripperAngle <= 65){gripperAngle = 65;}
 //End of calculations to get the current length of the gripper (as it oscillates depending on it's state)
 
 
 //Beginning of calculations to get the angles required for the servo 2,3,4
-  if(_x<0 || _y<0 || _z<0){
+  if(_x<0 || _y<0){
     _x = abs(_x);
     _y = abs(_y);
-    _z = abs(_z);
+    //_z = abs(_z);
 
     hST1 = sqrt(sq(_x) + sq(_y));
     hST2 = sqrt(sq(hST1) + sq(_z));
@@ -67,10 +67,10 @@ void InverseKinematics::calculate_IK(float x, float y, float z) {
 
     shoulderAngle = 180 - ((K + AT1 + CT2) * (180 / PI));
     elbowAngle = (((AT2) * (180 / PI)) - 90);
-    wristPitchAngle = 180 - ((BT2 + BT1) * (180 / PI) - 90);
+    wristPitchAngle = 180 - ((BT2 + BT1) * (180 / PI) - 75);
   }
 
-  else if(_x>0 || _y>0 || _z>0){
+  else if(_x>0 || _y>0){
     hST1 = sqrt(sq(_x) + sq(_y));
     hST2 = sqrt(sq(hST1) + sq(_z));
     K = asin(_z/hST2);
@@ -83,14 +83,21 @@ void InverseKinematics::calculate_IK(float x, float y, float z) {
 
     shoulderAngle = (((K + AT1 + CT2) * (180 / PI)));
     elbowAngle = 180 - (((AT2) * (180 / PI)) - 90);
-    wristPitchAngle = (BT2 + BT1) * (180 / PI) - 90;
+    wristPitchAngle = (BT2 + BT1) * (180 / PI) - 75;
   }
 
+  if(elbowAngle < 0){
+    elbowAngle = 0;
+    wristPitchAngle = abs(shoulderAngle - 180);
+  }
+  else if(elbowAngle > 180){
+    elbowAngle = 180;
+    wristPitchAngle = abs(shoulderAngle - 180);
+  }
 
+Serial.println(elbowAngle);
 //End of calculations to get the angles required for the servo 2,3,4
 
-
-  Serial.println(_y);
 }
 
 double InverseKinematics::servo_1_angle(){
