@@ -18,6 +18,8 @@ float wristPitchAngle = 90;
 int gripperAngle = 170;
 float gripperLength = 8.5;
 
+byte currentCuadrant; //(I, II, III, IV)
+
 double hST1; //Hypotenuse of Subtriangle 1
 double hST2; //Hypotenuse of Subtriangle 2
 double K; //Angle located in  Sub Triangle 2 and Triangle 1 (angle mirrored)
@@ -35,26 +37,57 @@ InverseKinematics::InverseKinematics(double armLength, double forearmLength){
   _forearmLength = forearmLength;
 }
 
-void InverseKinematics::calculate_IK(float x, float y, float z) {
+void InverseKinematics::calculate_IK(float x, float y, float z, int gripperState) {
   _x = x;
   _y = y;
   _z = z;
+  _gripperState = gripperState;
 
 //Beginning of calculations to get the current length of the gripper (as it oscillates depending on it's state)
+  if(_gripperState > 5){
+    _gripperState = 5;
+  }
+  else if(_gripperState < 0){
+    _gripperState = 0;
+  }
+
+  gripperAngle = (21 * _gripperState) + 65;
+
   gripperLength = (-(gripperAngle / 27) + (360 / 27))+1.5;
-  //(-0.357 * gripperAngle + 150)/10;
   //Gripper limits
   if(gripperAngle >= 170){gripperAngle = 170;}
   else if(gripperAngle <= 65){gripperAngle = 65;}
 //End of calculations to get the current length of the gripper (as it oscillates depending on it's state)
 
 
+//Beginning of localization of CUADRANT on the plane (I, II, III, IV)
+    rotationAngle = 180 * (atan(abs(y/x))) / PI;
+    if(_x>=0){
+      if(_y>0){    //If angle is located on the ++ CUADRANT of the plane CUADRANT I
+        currentCuadrant = 1;
+      }
+      else if(_y<=0){   //If angle is located on the +- CUADRANT of the plane CUADRANT IV 
+        rotationAngle = 180 - rotationAngle;
+        currentCuadrant = 4;
+      }
+    }
+    else if(_x<0){
+      if(+y>=0){   //If angle is located on the -+ CUADRANT of the plane CUADRANT II
+        rotationAngle = 180 - rotationAngle;
+        currentCuadrant = 2;
+      }
+      else if(_y<0){  //If angle is located on the -- CUADRANT of the plane CUADRANT III
+        currentCuadrant = 3;
+      }
+    }
+//End of localization of CUADRANT on the plane (I, II, III, IV)
+
+
 //Beginning of calculations to get the angles required for the servo 2,3,4
-  if(_x<0 || _y<0){
+  if(currentCuadrant == 3 || currentCuadrant == 4){
     _x = abs(_x);
     _y = abs(_y);
     //_z = abs(_z);
-
     hST1 = sqrt(sq(_x) + sq(_y));
     hST2 = sqrt(sq(hST1) + sq(_z));
     K = asin(_z/hST2);
@@ -69,8 +102,7 @@ void InverseKinematics::calculate_IK(float x, float y, float z) {
     elbowAngle = (((AT2) * (180 / PI)) - 90);
     wristPitchAngle = 180 - ((BT2 + BT1) * (180 / PI) - 75);
   }
-
-  else if(_x>0 || _y>0){
+  else if(currentCuadrant == 1 || currentCuadrant == 2){
     hST1 = sqrt(sq(_x) + sq(_y));
     hST2 = sqrt(sq(hST1) + sq(_z));
     K = asin(_z/hST2);
@@ -95,13 +127,13 @@ void InverseKinematics::calculate_IK(float x, float y, float z) {
     wristPitchAngle = abs(shoulderAngle - 180);
   }
 
-Serial.println(elbowAngle);
+Serial.println(gripperAngle);
 //End of calculations to get the angles required for the servo 2,3,4
 
 }
 
 double InverseKinematics::servo_1_angle(){
-  return 90;
+  return rotationAngle;
 }
 
 double InverseKinematics::servo_2_angle(){
