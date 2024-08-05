@@ -29,10 +29,10 @@ void setup() {
 void loop() {
   led.stand_by_mode();
 
-  int potenciometerValue = map(analogRead(13), 4095, 1887, -25, 25);
+  int potenciometerValue = map(analogRead(13), 4095, 1887, -30, 30);
   //Serial.println(potenciometerValue);
 
-  InverseKinematics.calculate_IK(potenciometerValue, 10.00, 10.00, 2);
+  InverseKinematics.calculate_IK(potenciometerValue, 10.00, 10.00, 0);
 
   //Serial.println(servo_5.read());
 
